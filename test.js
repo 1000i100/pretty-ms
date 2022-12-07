@@ -1,9 +1,10 @@
 import test from 'ava';
-import prettyMilliseconds from './index.js';
+import prettyMilliseconds, {timeUnitStrings} from './index.js';
 
 test('prettify milliseconds', t => {
 	t.is(prettyMilliseconds(0), '0ms');
-	t.is(prettyMilliseconds(0.1), '1ms');
+	t.is(prettyMilliseconds(0.1), '0ms');
+	t.is(prettyMilliseconds(0.5), '1ms');
 	t.is(prettyMilliseconds(1), '1ms');
 	t.is(prettyMilliseconds(999), '999ms');
 	t.is(prettyMilliseconds(1000), '1s');
@@ -18,6 +19,9 @@ test('prettify milliseconds', t => {
 	t.is(prettyMilliseconds(1000 * 60 * 60 * 999), '41d 15h');
 	t.is(prettyMilliseconds(1000 * 60 * 60 * 24 * 465), '1y 100d');
 	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465), '1y 154d 6h');
+	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {upToUnit: 'weeks'}), '74w 1d 6h');
+	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {upToUnit: 'months'}), '17M 1d 19h 30m');
+	t.is(prettyMilliseconds(1000 * 60 * 67 * 24 * 465, {upToUnit: 'years'}), '1y 5M 1d 19h 30m');
 	t.is(prettyMilliseconds(119_999), '1m 59.9s');
 	t.is(prettyMilliseconds(120_000), '2m');
 });
@@ -65,7 +69,8 @@ test('have a verbose option', t => {
 	const fn = milliseconds => prettyMilliseconds(milliseconds, {verbose: true});
 
 	t.is(fn(0), '0 milliseconds');
-	t.is(fn(0.1), '1 millisecond');
+	t.is(fn(0.1), '0 milliseconds');
+	t.is(fn(0.6), '1 millisecond');
 	t.is(fn(1), '1 millisecond');
 	t.is(fn(1000), '1 second');
 	t.is(fn(1000 + 400), '1.4 seconds');
@@ -90,7 +95,7 @@ test('have a separateMilliseconds option', t => {
 test('have a formatSubMilliseconds option', t => {
 	t.is(prettyMilliseconds(0.4, {formatSubMilliseconds: true}), '400µs');
 	t.is(prettyMilliseconds(0.123_571, {formatSubMilliseconds: true}), '123µs 571ns');
-	t.is(prettyMilliseconds(0.123_456_789, {formatSubMilliseconds: true}), '123µs 456ns');
+	t.is(prettyMilliseconds(0.123_456_789, {formatSubMilliseconds: true}), '123µs 456ns 789ps');
 	t.is(
 		prettyMilliseconds((60 * 60 * 1000) + (23 * 1000) + 433 + 0.123_456, {
 			formatSubMilliseconds: true,
@@ -171,8 +176,9 @@ test('work with verbose and formatSubMilliseconds options', t => {
 		prettyMilliseconds(0.123_456_789, {
 			formatSubMilliseconds: true,
 			verbose: true,
+			downToUnit: 'nanoseconds',
 		}),
-		'123 microseconds 456 nanoseconds',
+		'123 microseconds 457 nanoseconds',
 	);
 	t.is(
 		prettyMilliseconds(0.001, {formatSubMilliseconds: true, verbose: true}),
@@ -296,4 +302,28 @@ test('`colonNotation` option', t => {
 	t.is(prettyMilliseconds((1000 * 60 * 59) + (1000 * 59) + 543, {colonNotation: true, separateMilliseconds: true}), '59:59.5');
 	t.is(prettyMilliseconds((1000 * 60 * 59) + (1000 * 59) + 543, {colonNotation: true, verbose: true}), '59:59.5');
 	t.is(prettyMilliseconds((1000 * 60 * 59) + (1000 * 59) + 543, {colonNotation: true, compact: true}), '59:59.5');
+});
+
+test('far futur', t => {
+	// For futur, use https://github.com/munrocket/double.js for better precision
+	const milliseconds = (2000 * 365.25 * 24 * 3600 * 1e3) - 1.007_006_008;
+	t.is(prettyMilliseconds(milliseconds, {upToUnit: 'millennia'}), '1ky 9c 99y 11M 4w 2d 10h 29m 59.9s');
+	t.is(prettyMilliseconds(milliseconds, {upToUnit: 'millennia', unitCount: 3, verbose: true}), '1 millennium 9 centuries 99 years');
+	t.is(prettyMilliseconds(milliseconds,
+		{upToUnit: 'millennia', unitCount: 3, verbose: true, verboseSeparator: ', ', verboseLastSeparator: ' and '},
+	), '1 millennium, 9 centuries and 99 years');
+});
+test('french', t => {
+	const milliseconds = (2000 * 365.25 * 24 * 3600 * 1e3) - 1.007_006_008;
+	const frenchPluralize = count => Math.abs(count) > 1;
+	timeUnitStrings.ky = {short: 'MM', singular: 'millénaire', plural: 'millénaires'};
+	timeUnitStrings.c = {short: 'SC', singular: 'siècle', plural: 'siècles'};
+	timeUnitStrings.Y = {short: 'A', singular: 'an', plural: 'ans'};
+	timeUnitStrings.ms = {short: 'ms', singular: 'milliseconde', plural: 'millisecondes'};
+	t.is(prettyMilliseconds(milliseconds,
+		{upToUnit: 'millennia', unitCount: 3, verbose: true, verboseSeparator: ', ', verboseLastSeparator: ' et ', pluralizeFunc: frenchPluralize},
+	), '1 millénaire, 9 siècles et 99 ans');
+	t.is(prettyMilliseconds(0.9,
+		{verbose: true, millisecondsDecimalDigits: 1, pluralizeFunc: frenchPluralize},
+	), '0.9 milliseconde');
 });

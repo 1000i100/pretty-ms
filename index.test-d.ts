@@ -1,5 +1,11 @@
 import {expectType} from 'tsd';
-import prettyMilliseconds from './index.js';
+import prettyMilliseconds, {timeUnitStrings, type TimeUnitStrings} from './index.js';
+
+expectType<TimeUnitStrings>(timeUnitStrings);
+
+expectType<string>(timeUnitStrings.ky.short);
+expectType<string>(timeUnitStrings.D.singular);
+expectType<string>(timeUnitStrings.ps.plural);
 
 expectType<string>(prettyMilliseconds(1_335_669_000));
 expectType<string>(prettyMilliseconds(1_335_669_000, {secondsDecimalDigits: 1}));

@@ -1,9 +1,11 @@
-export interface Options {
+import {type TimeUnits} from 'parse-ms';
+
+export type Options = {
 	/**
 	Number of digits to appear after the seconds decimal point.
 
 	@default 1
-	*/
+	 */
 	readonly secondsDecimalDigits?: number;
 
 	/**
@@ -12,7 +14,7 @@ export interface Options {
 	Useful in combination with [`process.hrtime()`](https://nodejs.org/api/process.html#process_process_hrtime).
 
 	@default 0
-	*/
+	 */
 	readonly millisecondsDecimalDigits?: number;
 
 	/**
@@ -21,7 +23,7 @@ export interface Options {
 	Useful when you are showing a number of seconds spent on an operation and don't want the width of the output to change when hitting a whole number.
 
 	@default false
-	*/
+	 */
 	readonly keepDecimalsOnWholeSeconds?: boolean;
 
 	/**
@@ -30,35 +32,35 @@ export interface Options {
 	Also ensures that `millisecondsDecimalDigits` and `secondsDecimalDigits` are both set to `0`.
 
 	@default false
-	*/
+	 */
 	readonly compact?: boolean;
 
 	/**
 	Number of units to show. Setting `compact` to `true` overrides this option.
 
 	@default Infinity
-	*/
+	 */
 	readonly unitCount?: number;
 
 	/**
 	Use full-length units: `5h 1m 45s` → `5 hours 1 minute 45 seconds`.
 
 	@default false
-	*/
+	 */
 	readonly verbose?: boolean;
 
 	/**
 	Show milliseconds separately. This means they won't be included in the decimal part of the seconds.
 
 	@default false
-	*/
+	 */
 	readonly separateMilliseconds?: boolean;
 
 	/**
 	Show microseconds and nanoseconds.
 
 	@default false
-	*/
+	 */
 	readonly formatSubMilliseconds?: boolean;
 
 	/**
@@ -73,15 +75,58 @@ export interface Options {
 	- `verbose`
 
 	@default false
-	*/
+	 */
 	readonly colonNotation?: boolean;
-}
+
+	/**
+	The highest TimeUnit you want in your return object.
+	Can be a long string like 'days' or a short string like 'd'
+	See type TimeUnits for full list.
+
+	@default 'days'
+	 */
+	readonly upToUnit?: TimeUnits;
+
+	/**
+	The lowest TimeUnit you want in your return object.
+	Can be a long string like 'days' or a short string like 'd'
+	See type TimeUnits for full list.
+
+	@default 'picoseconds'
+	 */
+	readonly downToUnit?: TimeUnits;
+
+	/**
+	Function used to choose between singular and plural.
+	Can be : (count) => Math.abs(count) > 1;
+
+	@default (count) => count !== 1;
+	 */
+	readonly pluralizeFunc?: (count: number) => boolean;
+
+	/**
+	String used as separator between each time unit in verbose mode
+	Example : ', '
+	@default ' '
+	 */
+	readonly verboseSeparator?: string;
+
+	/**
+	String used as separator before the last time unit shown in verbose mode.
+	Example : ' and '
+
+	@default ' '
+	 */
+	readonly verboseLastSeparator?: string;
+
+};
 
 /**
 Convert milliseconds to a human readable string: `1337000000` → `15d 11h 23m 20s`.
 
 @param milliseconds - Milliseconds to humanize.
 
+@param options
 @example
 ```
 import prettyMilliseconds from 'pretty-ms';
@@ -115,9 +160,30 @@ prettyMilliseconds(100.400080, {formatSubMilliseconds: true})
 prettyMilliseconds(new Date(2014, 0, 1, 10, 40) - new Date(2014, 0, 1, 10, 5))
 //=> '35m'
 ```
-*/
+ */
 export default function prettyMilliseconds(
 	milliseconds: number,
 	options?: Options
 ): string;
 
+export const timeUnitStrings: TimeUnitStrings;
+export type TimeUnitStrings = {
+	ky: UnitForms;
+	c: UnitForms;
+	Y: UnitForms;
+	M: UnitForms;
+	W: UnitForms;
+	D: UnitForms;
+	h: UnitForms;
+	m: UnitForms;
+	s: UnitForms;
+	ms: UnitForms;
+	µs: UnitForms;
+	ns: UnitForms;
+	ps: UnitForms;
+};
+declare type UnitForms = {
+	short: string;
+	singular: string;
+	plural: string;
+};
