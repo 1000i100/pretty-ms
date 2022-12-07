@@ -1,5 +1,5 @@
 import {expectType} from 'tsd';
-import prettyMilliseconds, {timeUnitStrings, type TimeUnitStrings} from './index.js';
+import prettyMilliseconds, {timeUnitStrings, type TimeUnitStrings} from './index.mjs';
 
 expectType<TimeUnitStrings>(timeUnitStrings);
 

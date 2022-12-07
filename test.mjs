@@ -1,5 +1,5 @@
 import test from 'ava';
-import prettyMilliseconds, {timeUnitStrings} from './index.js';
+import prettyMilliseconds, {timeUnitStrings} from './index.mjs';
 
 test('prettify milliseconds', t => {
 	t.is(prettyMilliseconds(0), '0ms');
