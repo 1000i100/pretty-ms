@@ -3,6 +3,8 @@ import parseMilliseconds from 'parse-ms';
 const pluralize = count => count !== 1;
 
 export const timeUnitStrings = {
+	By: {short: 'By', singular: 'billion years', plural: 'billion years'},
+	My: {short: 'My', singular: 'million years', plural: 'million years'},
 	ky: {short: 'ky', singular: 'millennium', plural: 'millennia'},
 	c: {short: 'c', singular: 'century', plural: 'centuries'},
 	Y: {short: 'y', singular: 'year', plural: 'years'},
@@ -47,6 +49,8 @@ export default function prettyMilliseconds(milliseconds, options = {}) {
 	});
 
 	if (options.upToUnit) {
+		add(parsed.By, 'By', ctx);
+		add(parsed.My, 'My', ctx);
 		add(parsed.millennia, 'ky', ctx);
 		add(parsed.centuries, 'c', ctx);
 		add(parsed.years, 'Y', ctx);

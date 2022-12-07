@@ -155,8 +155,8 @@ test('work with verbose and millisecondsDecimalDigits options', t => {
 
 	t.is(fn(1), '1.0000 millisecond');
 	t.is(fn(1 + 0.4), '1.4000 milliseconds');
-	t.is(fn((1 * 2) + 0.4), '2.4000 milliseconds');
-	t.is(fn((1 * 5) + 0.254), '5.2540 milliseconds');
+	t.is(fn(2.4), '2.4000 milliseconds');
+	t.is(fn(5.254), '5.2540 milliseconds');
 	t.is(fn(33.333), '33.3330 milliseconds');
 });
 
@@ -312,6 +312,9 @@ test('far futur', t => {
 	t.is(prettyMilliseconds(milliseconds,
 		{upToUnit: 'millennia', unitCount: 3, verbose: true, verboseSeparator: ', ', verboseLastSeparator: ' and '},
 	), '1 millennium, 9 centuries and 99 years');
+	t.is(prettyMilliseconds((42_999_999_999 * 365.25 * 24 * 3600 * 1e3),
+		{upToUnit: 'By', unitCount: 3, verbose: true, verboseSeparator: ', ', verboseLastSeparator: ' and '},
+	), '42 billion years, 999 million years and 999 millennia');
 });
 test('french', t => {
 	const milliseconds = (2000 * 365.25 * 24 * 3600 * 1e3) - 1.007_006_008;

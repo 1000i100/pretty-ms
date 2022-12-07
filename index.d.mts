@@ -168,6 +168,8 @@ export default function prettyMilliseconds(
 
 export const timeUnitStrings: TimeUnitStrings;
 export type TimeUnitStrings = {
+	By: UnitForms;
+	My: UnitForms;
 	ky: UnitForms;
 	c: UnitForms;
 	Y: UnitForms;
